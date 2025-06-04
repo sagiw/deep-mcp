@@ -26,8 +26,6 @@ const server = new FastMCP({
 
 // --- Google Deep Function ---
 const GoogleDeepParams = z.object({
-  depth: z.number().optional().describe("Controls the creativity of the response (0-10, higher values increase temperature)"),
-  maxOutputTokens: z.number().optional().describe("Maximum number of tokens to generate (default: 2048)"),
   query: z.string().describe("The prompt to send to Google Gemini API"),
 });
 
@@ -44,8 +42,8 @@ server.addTool({
       throw new Error("GOOGLE_API_KEY environment variable is not set");
     }
     
-    // Calculate temperature from depth parameter (0-10 scale to 0-1 scale)
-    const temperature = args.depth ? Math.min(Math.max(args.depth / 10, 0), 1) : 0.7;
+    // Use a default temperature
+    const temperature = 0.7;
     
     const modelName = 'gemini-2.0-flash'; // Updated model name
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
