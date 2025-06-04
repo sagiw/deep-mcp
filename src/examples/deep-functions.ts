@@ -126,15 +126,8 @@ server.addTool({
 });
 
 // --- Perplexity Deep Function ---
-// Define Perplexity parameters using Zod to match Google parameter style
+// Define Perplexity parameters with a simplified structure for n8n compatibility
 const PerplexityDeepParams = z.object({
-  messages: z.array(
-    z.object({
-      content: z.string().describe("The content of the message"),
-      role: z.enum(["system", "user", "assistant"]).describe("Role of the message")
-    })
-  ).optional().describe("Array of conversation messages (if provided, will override query)"),
-  mode: z.enum(["research", "analysis", "creative"]).default("research").describe("The processing mode"),
   query: z.string().describe("The query to process")
 });
 
@@ -163,37 +156,31 @@ server.addTool({
     const SYSTEM_PROMPTS = {
       analysis: "You are an analytical assistant that provides detailed analysis and insights.",
       creative: "You are a creative assistant that provides imaginative and expressive responses.",
-      default: "You are a research assistant that provides comprehensive information with citations."
+      research: "You are a research assistant that provides comprehensive information with citations."
     };
 
     // Log minimal request info
     const maskedApiKey = `${apiKey.substring(0, 5)}...${apiKey.substring(apiKey.length - 4)}`;
-    log.info(`🔐 API Key: ${maskedApiKey} | Mode: ${args.mode || 'default'}`);
+    log.info(`🔐 API Key: ${maskedApiKey} | Mode: research`);
 
-    // Select model based on mode
-    const model = MODEL_MAP[args.mode as keyof typeof MODEL_MAP] || MODEL_MAP.default;
+    // Always use research mode
+    const model = MODEL_MAP.research;
     
-    // Prepare messages array
-    const messages = Array.isArray(args.messages) ? args.messages : [
-      {
-        content: SYSTEM_PROMPTS[args.mode as keyof typeof SYSTEM_PROMPTS] || SYSTEM_PROMPTS.default,
-        role: "system" as const
-      },
+    // Prepare messages array with the simplest structure
+    const messages = [
       {
         content: args.query,
         role: "user" as const
       }
     ];
 
-    // Log query preview if not using predefined messages
-    if (!Array.isArray(args.messages) && args.query) {
-      const { length } = args.query;
-      log.info(`📝 Query: ${length > 100 ? `${args.query.substring(0, 100)}... [${length} chars]` : args.query}`);
-    }
+    // Log query preview
+    const { length } = args.query;
+    log.info(`📝 Query: ${length > 100 ? `${args.query.substring(0, 100)}... [${length} chars]` : args.query}`);
 
     // Setup request with timeout
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
+    const timeout = setTimeout(() => controller.abort(), 1800000); // 30m timeout
 
     try {
       const response = await fetch("https://api.perplexity.ai/chat/completions", {
