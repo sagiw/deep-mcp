@@ -1,53 +1,64 @@
-# FastMCP
+# Deep MCP
 
-A TypeScript framework for building [MCP](https://glama.ai/mcp) servers capable of handling client sessions.
-
-> [!NOTE]
->
-> For a Python implementation, see [FastMCP](https://github.com/jlowin/fastmcp).
+A Model Context Protocol (MCP) server implementation that provides deep research capabilities through integration with Google's Gemini API and Perplexity AI.
 
 ## Features
 
-- Simple Tool, Resource, Prompt definition
-- [Authentication](#authentication)
-- [Sessions](#sessions)
-- [Image content](#returning-an-image)
-- [Audio content](#returning-an-audio)
-- [Embedded](#embedded-resources)
-- [Logging](#logging)
-- [Error handling](#errors)
-- [HTTP Streaming](#http-streaming) (with SSE compatibility)
-- CORS (enabled by default)
-- [Progress notifications](#progress)
-- [Streaming output](#streaming-output)
-- [Typed server events](#typed-server-events)
-- [Prompt argument auto-completion](#prompt-argument-auto-completion)
-- [Sampling](#requestsampling)
-- [Configurable ping behavior](#configurable-ping-behavior)
-- [Health-check endpoint](#health-check-endpoint)
-- [Roots](#roots-management)
-- CLI for [testing](#test-with-mcp-cli) and [debugging](#inspect-with-mcp-inspector)
+- **Google Deep Research**: Conduct in-depth research using Google's Gemini API
+- **Perplexity Deep Research**: Perform comprehensive research and analysis using Perplexity AI
+- **HTTP Streaming**: Support for SSE-compatible streaming responses
+- **Parameter Control**: Adjust depth, mode, and other parameters for research quality
 
-## When to use FastMCP over the official SDK?
+## Usage
 
-FastMCP is built on top of the official SDK.
+### Starting the Server
 
-The official SDK provides foundational blocks for building MCPs, but leaves many implementation details to you:
+You can start the server with standard stdio transport:
 
-- [Initiating and configuring](https://github.com/punkpeye/fastmcp/blob/06c2af7a3d7e3d8c638deac1964ce269ce8e518b/src/FastMCP.ts#L664-L744) all the server components
-- [Handling of connections](https://github.com/punkpeye/fastmcp/blob/06c2af7a3d7e3d8c638deac1964ce269ce8e518b/src/FastMCP.ts#L760-L850)
-- [Handling of tools](https://github.com/punkpeye/fastmcp/blob/06c2af7a3d7e3d8c638deac1964ce269ce8e518b/src/FastMCP.ts#L1303-L1498)
-- [Handling of responses](https://github.com/punkpeye/fastmcp/blob/06c2af7a3d7e3d8c638deac1964ce269ce8e518b/src/FastMCP.ts#L989-L1060)
-- [Handling of resources](https://github.com/punkpeye/fastmcp/blob/06c2af7a3d7e3d8c638deac1964ce269ce8e518b/src/FastMCP.ts#L1151-L1242)
-- Adding [prompts](https://github.com/punkpeye/fastmcp/blob/06c2af7a3d7e3d8c638deac1964ce269ce8e518b/src/FastMCP.ts#L760-L850), [resources](https://github.com/punkpeye/fastmcp/blob/06c2af7a3d7e3d8c638deac1964ce269ce8e518b/src/FastMCP.ts#L960-L962), [resource templates](https://github.com/punkpeye/fastmcp/blob/06c2af7a3d7e3d8c638deac1964ce269ce8e518b/src/FastMCP.ts#L964-L987) 
-- Embedding [resources](https://github.com/punkpeye/fastmcp/blob/06c2af7a3d7e3d8c638deac1964ce269ce8e518b/src/FastMCP.ts#L1569-L1643), [image](https://github.com/punkpeye/fastmcp/blob/06c2af7a3d7e3d8c638deac1964ce269ce8e518b/src/FastMCP.ts#L51-L111) and [audio](https://github.com/punkpeye/fastmcp/blob/06c2af7a3d7e3d8c638deac1964ce269ce8e518b/src/FastMCP.ts#L113-L173) content blocks
+```bash
+npx tsx src/examples/deep-functions.ts
+```
 
-FastMCP eliminates this complexity by providing an opinionated framework that:
+Or with HTTP streaming enabled:
 
-- Handles all the boilerplate automatically
-- Provides simple, intuitive APIs for common tasks
-- Includes built-in best practices and error handling
-- Lets you focus on your MCP's core functionality
+```bash
+npx tsx src/examples/deep-functions.ts --http-stream
+```
+
+### Available Tools
+
+#### Google Deep Research
+
+Performs research queries using Google's Gemini API with the following parameters:
+- `query`: The prompt to send to Google Gemini API
+- `depth`: Controls the creativity of the response (0-10, higher values increase temperature)
+- `maxOutputTokens`: Maximum number of tokens to generate (default: 2048)
+
+#### Perplexity Deep Research
+
+Performs comprehensive research using Perplexity AI with the following parameters:
+- `query`: The query to process
+- `mode`: The processing mode ("research", "analysis", or "creative")
+- `messages`: Optional array of conversation messages
+
+## Integration
+
+This MCP server can be integrated with various clients including n8n, LangChain, and other MCP-compatible frameworks.
+
+## Environment Variables
+
+You should set the following environment variables in a `.env` file:
+
+```
+GOOGLE_API_KEY=your_google_api_key
+PERPLEXITY_API_KEY=your_perplexity_api_key
+```
+
+## Requirements
+
+- Node.js 18+
+- TypeScript
+- npm or yarn
 
 **When to choose FastMCP:** You want to build MCP servers quickly without dealing with low-level implementation details.
 
